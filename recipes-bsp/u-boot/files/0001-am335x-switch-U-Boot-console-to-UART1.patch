@@ -1,0 +1,69 @@
+From 694d41ea23362923fbfaf20cd2725ba280f16c7f Mon Sep 17 00:00:00 2001
+From: sonlh <sonbk1997>
+Date: Thu, 6 Aug 2026 07:05:37 +0700
+Subject: [PATCH] am335x: switch U-Boot console to UART1
+
+---
+ arch/arm/dts/am335x-bone-common.dtsi | 18 ++++++++++++++++--
+ configs/am335x_evm_defconfig         |  1 +
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/dts/am335x-bone-common.dtsi b/arch/arm/dts/am335x-bone-common.dtsi
+index 35ec1a8df87..9f6898df838 100644
+--- a/arch/arm/dts/am335x-bone-common.dtsi
++++ b/arch/arm/dts/am335x-bone-common.dtsi
+@@ -16,7 +16,7 @@
+ 	};
+ 
+ 	chosen {
+-		stdout-path = &uart0;
++		stdout-path = &uart1;
+ 		tick-timer = &timer2;
+ 	};
+ 
+@@ -97,6 +97,13 @@
+ 		>;
+ 	};
+ 
++	uart1_pins: pinmux_uart1_pins {
++		pinctrl-single,pins = <
++			AM33XX_PADCONF(AM335X_PIN_UART1_RXD, PIN_INPUT_PULLUP, MUX_MODE0)
++			AM33XX_PADCONF(AM335X_PIN_UART1_TXD, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
++		>;
++	};
++
+ 	clkout2_pin: pinmux_clkout2_pin {
+ 		pinctrl-single,pins = <
+ 			AM33XX_PADCONF(AM335X_PIN_XDMA_EVENT_INTR1, PIN_OUTPUT_PULLDOWN, MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+@@ -185,11 +192,18 @@
+ 	};
+ };
+ 
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_pins>;
++
++	status = "okay";
++};
++
+ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_pins>;
+ 
+-	status = "okay";
++	status = "disabled";
+ };
+ 
+ &usb0 {
+diff --git a/configs/am335x_evm_defconfig b/configs/am335x_evm_defconfig
+index 4dc5d0fe347..523a91a9279 100644
+--- a/configs/am335x_evm_defconfig
++++ b/configs/am335x_evm_defconfig
+@@ -101,3 +101,4 @@ CONFIG_WDT=y
+ CONFIG_DYNAMIC_CRC_TABLE=y
+ CONFIG_RSA=y
+ CONFIG_LZO=y
++CONFIG_CONS_INDEX=2
+-- 
+2.34.1
+

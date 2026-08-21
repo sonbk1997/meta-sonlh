@@ -1,0 +1,32 @@
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 0ccdc7cd463b..8223dcf50d07 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -96,6 +96,13 @@ AM33XX_PADCONF(AM335X_PIN_UART0_TXD, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
+ 		>;
+ 	};
+ 
++	uart1_pins: pinmux_uart1_pins {
++		pinctrl-single,pins = <
++			AM33XX_PADCONF(AM335X_PIN_UART1_RXD, PIN_INPUT_PULLUP, MUX_MODE0)
++			AM33XX_PADCONF(AM335X_PIN_UART1_TXD, PIN_OUTPUT_PULLDOWN, MUX_MODE0)
++		>;
++	};
++
+ 	clkout2_pin: pinmux_clkout2_pin {
+ 		pinctrl-single,pins = <
+ 			AM33XX_PADCONF(AM335X_PIN_XDMA_EVENT_INTR1, PIN_OUTPUT_PULLDOWN, MUX_MODE3)	/* xdma_event_intr1.clkout2 */
+@@ -188,6 +195,13 @@ &uart0 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&uart0_pins>;
+ 
++	status = "disabled";
++};
++
++&uart1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&uart1_pins>;
++
+ 	status = "okay";
+ };
+ 
