@@ -1,0 +1,124 @@
+diff --git a/arch/arm/boot/dts/am335x-bone-common.dtsi b/arch/arm/boot/dts/am335x-bone-common.dtsi
+index 8223dcf50d07..99a85960bfb9 100644
+--- a/arch/arm/boot/dts/am335x-bone-common.dtsi
++++ b/arch/arm/boot/dts/am335x-bone-common.dtsi
+@@ -16,7 +16,7 @@ memory@80000000 {
+ 	};
+ 
+ 	chosen {
+-		stdout-path = &uart0;
++		stdout-path = &uart1;
+ 	};
+ 
+ 	leds {
+diff --git a/arch/arm/boot/dts/am335x-boneblack-hdmi.dtsi b/arch/arm/boot/dts/am335x-boneblack-hdmi.dtsi
+index 7cfddada9348..364bbddb66a3 100644
+--- a/arch/arm/boot/dts/am335x-boneblack-hdmi.dtsi
++++ b/arch/arm/boot/dts/am335x-boneblack-hdmi.dtsi
+@@ -98,7 +98,7 @@ &mcasp0	{
+ 	#sound-dai-cells = <0>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mcasp0_pins>;
+-	status = "okay";
++	status = "disabled";
+ 	op-mode = <0>;	/* MCASP_IIS_MODE */
+ 	tdm-slots = <2>;
+ 	serial-dir = <	/* 0: INACTIVE, 1: TX, 2: RX */
+diff --git a/arch/arm/boot/dts/am335x-boneblack.dts b/arch/arm/boot/dts/am335x-boneblack.dts
+index 9312197316f0..9ed7f3641a07 100644
+--- a/arch/arm/boot/dts/am335x-boneblack.dts
++++ b/arch/arm/boot/dts/am335x-boneblack.dts
+@@ -168,3 +168,93 @@ &gpio3 {
+ 		"NC",
+ 		"NC";
+ };
++
++&am33xx_pinmux {
++	bb_spi1_pins: pinmux_bb_spi1_pins {
++		pinctrl-single,pins = <
++			AM33XX_PADCONF(AM335X_PIN_MCASP0_ACLKX, PIN_INPUT_PULLUP, MUX_MODE3)	/* mcasp0_aclkx.spi1_sclk,  INPUT_PULLUP | MODE3,	 */	
++			AM33XX_PADCONF(AM335X_PIN_MCASP0_FSX, PIN_INPUT_PULLUP, MUX_MODE3)		/* mcasp0_fsx.spi1_d0,      INPUT_PULLUP | MODE3,	 */		
++			AM33XX_PADCONF(AM335X_PIN_MCASP0_AXR0, PIN_OUTPUT_PULLUP, MUX_MODE3)	/* mcasp0_axr0.spi1_d1,    OUTPUT_PULLUP | MODE3,	 */	
++			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKR, PIN_OUTPUT_PULLUP, MUX_MODE3)	/* mcasp0_ahclkr.spi1_cs0, OUTPUT_PULLUP | MODE3,	 */		
++		>;
++	};
++
++	bb_lcd_pins: pinmux_bb_lcd_pins {
++		pinctrl-single,pins = <
++			AM33XX_PADCONF(AM335X_PIN_MCASP0_FSR, PIN_OUTPUT_PULLUP, MUX_MODE7)		/* gpio, dc,	OUTPUT_PULLUP | MODE07	*/			
++			AM33XX_PADCONF(AM335X_PIN_MCASP0_AHCLKX, PIN_OUTPUT_PULLUP, MUX_MODE7)	/* gpio, reset,	OUTPUT_PULLUP | MODE07	*/			
++		>;
++	};
++	
++	bb_spi0_pins: pinmux_bb_spi0_pins {
++		pinctrl-single,pins = <
++			AM33XX_PADCONF(AM335X_PIN_SPI0_SCLK, PIN_INPUT_PULLUP, MUX_MODE0)	/* spi0_sclk,  INPUT_PULLUP | MODE0, 	P9_22 */	
++			AM33XX_PADCONF(AM335X_PIN_SPI0_D0,   PIN_INPUT_PULLUP, MUX_MODE0)	/* spi0_d0,    INPUT_PULLUP | MODE0, 	P9_21 */		
++			AM33XX_PADCONF(AM335X_PIN_SPI0_D1,   PIN_OUTPUT_PULLUP, MUX_MODE0)	/* spi0_d1,    OUTPUT_PULLUP | MODE0, 	P9_18 */	
++			AM33XX_PADCONF(AM335X_PIN_SPI0_CS0,  PIN_OUTPUT_PULLUP, MUX_MODE0)	/* spi0_cs0,   OUTPUT_PULLUP | MODE0, 	P9_17 */
++		>;
++	};
++
++	bb_touchscreen_pins: pinmux_bb_touchscreen_pins {
++		pinctrl-single,pins = <
++			AM33XX_PADCONF(AM335X_PIN_GPMC_A1,  PIN_INPUT, MUX_MODE7)	/* gpmc_a1,   OUTPUT_PULLUP | MODE0, 	P9_23 */
++		>;
++	};
++
++};
++
++&spi1 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&bb_spi1_pins>;
++
++	lcd@0{
++		compatible = "adafruit,yx240qv29";
++		reg = <0>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&bb_lcd_pins>;
++		spi-max-frequency = <24000000>;
++		rotation = <90>;
++		dc-gpios    = <&gpio3 19 0>;   // lcd dc    P9.27 gpio3[19]
++		reset-gpios = <&gpio3 21 0>;   // lcd reset P9.25 gpio3[21]
++		status = "okay";
++	};
++};
++
++&spi0 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&bb_spi0_pins>;
++
++	touchscreen@0 {
++		compatible = "ti,ads7846";
++		spi-max-frequency = <100000>;   			
++		interrupts = <17 IRQ_TYPE_EDGE_FALLING>;             
++		interrupt-parent = <&gpio1>;
++		pendown-gpio = <&gpio1 17 0>;      
++		reg = <0>;
++		#addr-size = <2>;
++		#page-size = <32>;
++		pinctrl-names = "default";
++    	pinctrl-0 = <&bb_touchscreen_pins>;
++
++		/* driver defaults */
++		ti,x-min = /bits/ 16 <0xB0>;
++		ti,y-min = /bits/ 16 <0x231>;
++		ti,x-max = /bits/ 16 <0xF49>;
++		ti,y-max = /bits/ 16 <0xF6B>;
++		ti,pressure-min = /bits/ 16 <0>;
++		ti,pressure-max = /bits/ 16 <0xFF>;
++		ti,x-plate-ohms = /bits/ 16 <0x96>;
++		ti,swap_xy = /bits/ 16 <0>;
++		ti,keep_vref_on = /bits/ 16 <0>;
++		ti,cs = /bits/ 16 <0>;
++		linux,wakeup;
++	};
++};
